@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nagpur AQI Dashboard — XGBoost Forecast</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link  rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link rel="stylesheet" href="static/css/style.css"/>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-wrap">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" fill="#1f6feb22"/>
+        <circle cx="20" cy="20" r="13" stroke="#58a6ff" stroke-width="1.5" fill="none"/>
+        <path d="M10 20Q15 14 20 20Q25 26 30 20" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <circle cx="20" cy="20" r="2.5" fill="#58a6ff"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Nagpur Air Quality Forecasting System</div>
+      <div class="header-sub">XGBoost Model · CPCB Data · 4 Stations</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="model-badge">XGBoost <span class="model-r2">R²≈0.90</span></div>
+    <span id="live-clock" class="clock"></span>
+    <span class="live-dot">● LIVE</span>
+    <button class="btn-refresh" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</header>
+
+<!-- ── CITY BANNER ────────────────────────────────────────────────────────── -->
+<div class="banner" id="city-banner">
+  <span class="banner-label">City Average AQI</span>
+  <span class="banner-aqi" id="city-avg-aqi">–</span>
+  <span class="banner-cat" id="city-avg-cat">–</span>
+  <span class="banner-adv" id="city-advisory">Loading…</span>
+</div>
+
+<!-- ── STATION TABS ────────────────────────────────────────────────────────── -->
+<nav class="station-tabs" id="station-tabs"></nav>
+
+<!-- ── MAIN GRID ──────────────────────────────────────────────────────────── -->
+<main class="grid">
+
+  <!-- Row 1 -->
+  <section class="card card-gauge">
+    <div class="card-head">Current AQI</div>
+    <div class="gauge-wrap">
+      <canvas id="gaugeCanvas" width="200" height="200"></canvas>
+      <div class="gauge-center">
+        <div class="gauge-val" id="gauge-val">–</div>
+        <div class="gauge-cat" id="gauge-cat">–</div>
+      </div>
+    </div>
+    <div class="gauge-meta">
+      <span id="gauge-station">–</span>
+      <span id="gauge-time">–</span>
+    </div>
+  </section>
+
+  <section class="card card-map">
+    <div class="card-head">Station Map — Nagpur</div>
+    <div id="nagpur-map"></div>
+  </section>
+
+  <section class="card card-pollutants">
+    <div class="card-head">Pollutant Levels <span class="vs-naaqs">vs NAAQS limit</span></div>
+    <div id="pollutant-bars"></div>
+  </section>
+
+  <!-- Row 2 -->
+  <section class="card card-history">
+    <div class="card-head">7-Day Historical AQI <span class="card-sub" id="hist-station"></span></div>
+    <canvas id="historyChart"></canvas>
+  </section>
+
+  <section class="card card-forecast">
+    <div class="card-head">
+      24-Hour XGBoost Forecast
+      <span class="fc-peak" id="fc-peak"></span>
+    </div>
+    <canvas id="forecastChart"></canvas>
+    <div class="fc-chips" id="fc-chips"></div>
+  </section>
+
+  <!-- Row 3 -->
+  <section class="card card-trend">
+    <div class="card-head">30-Day City AQI Trend</div>
+    <canvas id="trendChart"></canvas>
+  </section>
+
+  <section class="card card-health">
+    <div class="card-head">Health Advisory</div>
+    <div id="health-content"></div>
+  </section>
+
+  <!-- Row 4 -->
+  <section class="card card-metrics">
+    <div class="card-head">XGBoost Model Performance</div>
+    <div style="overflow-x: auto; width: 100%;">
+      <table class="metrics-tbl">
+        <thead>
+          <tr><th>Station</th><th>MAE</th><th>RMSE</th><th>R²</th><th>CatAcc%</th></tr>
+        </thead>
+        <tbody id="metrics-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card card-fimp">
+    <div class="card-head">Feature Importance <span class="card-sub" id="fi-station"></span></div>
+    <canvas id="fimpChart"></canvas>
+  </section>
+
+  <!-- Row 5 — Custom Predictor -->
+  <section class="card card-predictor">
+    <div class="card-head">Custom AQI Predictor</div>
+    <div class="predictor-grid">
+      <label>Station
+        <select id="p-station">
+          <option value="Ambazari">Ambazari</option>
+          <option value="Mahal">Mahal</option>
+          <option value="Civil_Lines">Civil Lines</option>
+          <option value="Ram_Nagar">Ram Nagar</option>
+        </select>
+      </label>
+      <label>PM2.5 (µg/m³)<input type="number" id="p-pm25" value="80" min="0"></label>
+      <label>PM10  (µg/m³)<input type="number" id="p-pm10" value="120" min="0"></label>
+      <label>NO2   (µg/m³)<input type="number" id="p-no2"  value="35" min="0"></label>
+      <label>SO2   (µg/m³)<input type="number" id="p-so2"  value="12" min="0"></label>
+      <label>NH3   (µg/m³)<input type="number" id="p-nh3"  value="20" min="0"></label>
+    </div>
+    <button class="btn-predict" onclick="runPredict()">Predict AQI →</button>
+    <div class="predict-result hidden" id="predict-result">
+      <div class="pr-aqi" id="pr-aqi">–</div>
+      <div class="pr-cat" id="pr-cat">–</div>
+      <div class="pr-adv" id="pr-adv">–</div>
+      <div class="pr-chips" id="pr-chips"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  CPCB Data · XGBoost Forecast · Ambazari · Mahal · Civil Lines · Ram Nagar · Nagpur, Maharashtra
+</footer>
+
+<script src="static/js/dashboard.js"></script>
+</body>
+</html>

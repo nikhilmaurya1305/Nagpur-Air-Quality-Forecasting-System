@@ -1,0 +1,269 @@
+/* ═══════════════════════════════════════════════════════════════
+   Nagpur AQI Dashboard  ·  XGBoost Edition  ·  style.css
+   Dark theme, card grid, responsive
+   ═══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d1117;
+  --bg-card:   #161b22;
+  --bg-card2:  #1c2230;
+  --border:    #30363d;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --accent:    #1f6feb;
+  --accent2:   #58a6ff;
+  --green:     #3fb950;
+  --xgb:       #2ca02c;
+  --xgb-light: #4ecb55;
+  --radius:    10px;
+  --shadow:    0 4px 20px rgba(0,0,0,.4);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  min-height: 100vh;
+}
+
+/* ── HEADER ──────────────────────────────────────────────────── */
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 24px;
+  background: linear-gradient(135deg,#0a1628,#142035);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  gap: 12px; flex-wrap: wrap;
+}
+.header-left  { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.logo-wrap { flex-shrink: 0; }
+
+.header-title {
+  font-size: clamp(13px, 2vw, 18px);
+  font-weight: 700;
+  background: linear-gradient(90deg,#58a6ff,#79c0ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.model-badge {
+  background: #1a3320; color: var(--xgb-light);
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  border: 1px solid #2ca02c55;
+}
+.model-r2 { margin-left: 4px; opacity: .8; }
+
+.clock { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.live-dot {
+  background: #162820; color: var(--green);
+  padding: 3px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+.btn-refresh {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px; padding: 6px 14px;
+  cursor: pointer; font-size: 12px; transition: background .2s;
+}
+.btn-refresh:hover { background: #388bfd; }
+
+/* ── BANNER ──────────────────────────────────────────────────── */
+.banner {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 24px;
+  background: #0a1628;
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--accent2);
+  font-size: 13px;
+}
+.banner-label { color: var(--muted); }
+.banner-aqi   { font-size: 20px; font-weight: 800; }
+.banner-cat   { padding: 2px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; }
+.banner-adv   { color: var(--muted); }
+
+/* ── TABS ────────────────────────────────────────────────────── */
+.station-tabs {
+  display: flex; gap: 6px; padding: 8px 24px; flex-wrap: wrap;
+  background: var(--bg-card); border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  padding: 5px 16px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--muted);
+  cursor: pointer; font-size: 12px; transition: all .2s;
+}
+.tab-btn:hover, .tab-btn.active {
+  background: var(--xgb); color: #fff; border-color: var(--xgb);
+}
+
+/* ── MAIN GRID ────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr;
+  grid-template-rows: repeat(5, auto);
+  gap: 14px;
+  padding: 16px 24px;
+  max-width: 1600px; margin: 0 auto;
+}
+
+/* ── CARD ────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-head {
+  font-size: 13px; font-weight: 600; color: var(--accent2);
+  padding-bottom: 10px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.card-sub { font-size: 11px; color: var(--muted); font-weight: 400; }
+.vs-naaqs { font-size: 10px; color: var(--muted); font-weight: 400; }
+
+/* Grid placement */
+.card-gauge     { grid-column: 1; grid-row: 1; }
+.card-map       { grid-column: 2; grid-row: 1; }
+.card-pollutants{ grid-column: 3; grid-row: 1; }
+.card-history   { grid-column: 1/3; grid-row: 2; }
+.card-forecast  { grid-column: 3;   grid-row: 2; }
+.card-trend     { grid-column: 1/3; grid-row: 3; }
+.card-health    { grid-column: 3;   grid-row: 3; }
+.card-metrics   { grid-column: 1/2; grid-row: 4; }
+.card-fimp      { grid-column: 2/4; grid-row: 4; }
+.card-predictor { grid-column: 1/4; grid-row: 5; }
+
+/* ── GAUGE ───────────────────────────────────────────────────── */
+.gauge-wrap   { position: relative; display: flex; justify-content: center; margin: 8px 0; }
+.gauge-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-52%); text-align: center; }
+.gauge-val    { font-size: 34px; font-weight: 900; line-height: 1; }
+.gauge-cat    { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.gauge-meta   { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 6px; }
+
+/* ── MAP ─────────────────────────────────────────────────────── */
+#nagpur-map { height: 220px; border-radius: 8px; overflow: hidden; }
+
+/* ── POLLUTANT BARS ──────────────────────────────────────────── */
+.poll-item   { margin-bottom: 10px; }
+.poll-row    { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
+.poll-right  { color: var(--muted); }
+.poll-bg     { height: 7px; background: #21262d; border-radius: 4px; overflow: hidden; }
+.poll-fill   { height: 100%; border-radius: 4px; transition: width .6s ease; }
+.fill-ok     { background: linear-gradient(90deg,#2ca02c,#4ecb55); }
+.fill-warn   { background: linear-gradient(90deg,#ff7e00,#ffb700); }
+.fill-danger { background: linear-gradient(90deg,#ff0000,#ff5555); }
+
+/* ── FORECAST ─────────────────────────────────────────────────── */
+.fc-peak { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: auto; }
+.fc-chips { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 8px; }
+.fc-chip  {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 4px 7px; border-radius: 5px;
+  font-size: 10px; min-width: 40px;
+  border: 1px solid var(--border);
+}
+.fc-chip-aqi { font-size: 13px; font-weight: 700; }
+.fc-chip-hr  { color: var(--muted); font-size: 9px; }
+
+/* ── HEALTH ──────────────────────────────────────────────────── */
+#health-content { font-size: 12px; }
+.health-st     { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.health-st:last-child { border: none; }
+.health-top    { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.health-name   { font-weight: 700; color: var(--accent2); }
+.health-badge  { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+.health-groups { display: grid; gap: 3px; }
+.health-grp    { display: flex; gap: 6px; font-size: 11px; }
+.health-grp-l  { color: var(--muted); min-width: 65px; flex-shrink: 0; }
+
+/* ── METRICS TABLE ────────────────────────────────────────────── */
+.metrics-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.metrics-tbl th, .metrics-tbl td {
+  padding: 7px 5px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.metrics-tbl th { color: var(--muted); font-weight: 600; font-size: 11px; }
+.metrics-tbl tr:last-child td { border: none; }
+.r2-great { color: var(--green); font-weight: 700; }
+.r2-ok    { color: #d4d700; }
+.r2-poor  { color: #ff5555; }
+
+/* ── PREDICTOR ────────────────────────────────────────────────── */
+.predictor-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px; margin-bottom: 12px;
+}
+.predictor-grid label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 11px; color: var(--muted);
+}
+.predictor-grid input,
+.predictor-grid select {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text);
+  padding: 6px 8px; font-size: 12px; width: 100%;
+}
+.btn-predict {
+  background: linear-gradient(135deg,#1a5a1a,var(--xgb));
+  color: #fff; border: none; border-radius: 8px;
+  padding: 9px 24px; cursor: pointer; font-size: 13px;
+  font-weight: 600; transition: opacity .2s;
+}
+.btn-predict:hover { opacity: .85; }
+
+.predict-result {
+  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;
+  padding: 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg-card2); margin-top: 14px;
+}
+.pr-aqi { font-size: 52px; font-weight: 900; line-height: 1; }
+.pr-cat { font-size: 16px; font-weight: 700; }
+.pr-adv { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.pr-chips { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 8px; }
+.hidden { display: none !important; }
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+.footer {
+  text-align: center; padding: 14px;
+  font-size: 11px; color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+  margin-top: 12px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+  .card-gauge     { grid-column:1; grid-row:1; }
+  .card-map       { grid-column:2; grid-row:1; }
+  .card-pollutants{ grid-column:1/3; grid-row:2; }
+  .card-history   { grid-column:1/3; grid-row:3; }
+  .card-forecast  { grid-column:1/3; grid-row:4; }
+  .card-trend     { grid-column:1/3; grid-row:5; }
+  .card-health    { grid-column:1/3; grid-row:6; }
+  .card-metrics   { grid-column:1;   grid-row:7; }
+  .card-fimp      { grid-column:2;   grid-row:7; }
+  .card-predictor { grid-column:1/3; grid-row:8; }
+}
+@media (max-width: 680px) {
+  .grid { grid-template-columns: 1fr; padding: 10px 12px; }
+  .card-gauge,.card-map,.card-pollutants,.card-history,.card-forecast,
+  .card-trend,.card-health,.card-metrics,.card-fimp,.card-predictor
+  { grid-column:1; grid-row:auto; }
+  .header { padding: 10px 14px; }
+  .predict-result { grid-template-columns: 1fr; }
+}

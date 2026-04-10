@@ -1,0 +1,40 @@
+{
+  "model": "XGBoost",
+  "features": [
+    "PM2.5",
+    "PM10",
+    "NO",
+    "NO2",
+    "SO2",
+    "NH3",
+    "Hour_sin",
+    "Hour_cos",
+    "Month_sin",
+    "Month_cos",
+    "DOW_sin",
+    "DOW_cos",
+    "IsWeekend"
+  ],
+  "target": "AQI",
+  "window_size": 48,
+  "horizon": 24,
+  "stations": [
+    "Ambazari",
+    "Mahal",
+    "Civil_Lines",
+    "Ram_Nagar"
+  ],
+  "hyperparameters": {
+    "n_estimators": 300,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 5,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbosity": 0
+  }
+}
