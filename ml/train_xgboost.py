@@ -59,14 +59,14 @@ VAL_RATIO   = 0.15
 
 # ── XGBoost HYPERPARAMETERS ───────────────────────────────────────────────────
 XGB_PARAMS = dict(
-    n_estimators     = 300,    # number of boosting trees
-    max_depth        = 6,      # max tree depth — prevents overfitting
-    learning_rate    = 0.03,   # slow LR + more trees → better generalisation
-    subsample        = 0.8,    # row sampling per tree
-    colsample_bytree = 0.8,    # feature sampling per tree
-    min_child_weight = 5,      # min samples per leaf
-    reg_alpha        = 0.1,    # L1 regularisation
-    reg_lambda       = 1.0,    # L2 regularisation
+    n_estimators     = 500,    # Increased for better performance
+    max_depth        = 8,      # Increased depth
+    learning_rate    = 0.02,   # Lower LR for more stable learning
+    subsample        = 0.8,
+    colsample_bytree = 0.8,
+    min_child_weight = 5,
+    reg_alpha        = 0.1,
+    reg_lambda       = 1.0,
     random_state     = 42,
     n_jobs           = -1,
     verbosity        = 0

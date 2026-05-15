@@ -1,96 +1,46 @@
-# Nagpur AQI Forecasting System — XGBoost Edition
+# 🌫️ Nagpur Air Quality Forecasting System
 
-XGBoost is the primary model (R² = 0.88–0.91 across all 4 stations).
+Welcome to the **Nagpur AQI Forecasting System**! This project is designed to predict air quality (AQI) across four major locations in Nagpur using state-of-the-art Machine Learning. Our goal is to provide reliable, 24-hour forecasts to help residents and authorities stay informed about the air they breathe.
 
-## Structure
+## 🚀 What's Inside?
+We didn't just build one model; we built and compared four different approaches to find the absolute best for Nagpur's specific environment:
+*   **XGBoost (The Champion):** Our top-performing model with an **R² score of ~0.91**. It’s fast, consistent, and handles Nagpur's pollutant spikes excellently.
+*   **ARIMA:** A classic statistical baseline that helps us track long-term trends.
+*   **GRU & CNN-LSTM:** Deep learning models that we've fine-tuned to capture complex, non-linear sequences in the air data.
 
-```
-nagpur_xgb/
-├── data/
-│   └── nagpur_final_preprocessed.csv
-├── ml/
-│   ├── train_xgboost.py          ← train + evaluate XGBoost
-│   ├── models/                   ← saved .pkl models + scalers
-│   ├── plots/                    ← 9-panel accuracy figures
-│   └── results/
-├── backend/
-│   └── app.py                    ← Flask API (port 5000)
-├── frontend/
-│   ├── index.html
-│   └── static/css/ js/
-└── requirements.txt
-```
+## 🛠️ Getting Started
+We've made it very easy to get this project up and running on your local machine.
 
-## Setup
-
+### 1. Install the basics
+First, make sure you have the necessary libraries installed:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Step 1 — Train
-
+### 2. Run the full Dashboard
+You can launch the entire project—both the AI backend and the visual dashboard—with a single command:
 ```bash
-cd ml
-python train_xgboost.py
+python backend/app.py
 ```
+Once it's running, just open your browser and go to:
+**[http://localhost:5000](http://localhost:5000)**
 
-Expected output (approx):
-```
-Station         Train R²   Val R²   Test R²   MAE     CatAcc%
-Ambazari        0.9821     0.9010   0.8785    13.13   84.20  ✔
-Mahal           0.9834     0.9030   0.8817    15.16   83.50  ✔
-Civil_Lines     0.9856     0.9110   0.8972    14.81   85.10  ✔
-Ram_Nagar       0.9867     0.9230   0.9096    11.02   86.30  ✔
-```
-
-## Step 2 — Start API
-
+## 📊 Research & Comparison
+If you want to see how the different models stack up against each other, run the comparison script:
 ```bash
-cd backend
-python app.py
-# → http://localhost:5000
+python run_comparison.py
 ```
+This will generate a detailed performance report and visual tables comparing MAE, RMSE, and R² scores for every station.
 
-## Step 3 — Open Dashboard
+## 📁 Project Structure
+*   `data/`: Contains the cleaned and preprocessed CPCB dataset for Nagpur.
+*   `ml/`: The "brain" of the project. Includes training scripts, saved models, and performance plots.
+*   `backend/`: A Flask API that serves the forecasts and also hosts the dashboard.
+*   `frontend/`: The visual interface where you can track live AQI, view forecasts, and use the custom predictor.
 
-```bash
-cd frontend
-python -m http.server 8080
-# → http://localhost:8080
-```
+## 📝 Features
+*   **24-Hour Forecasts:** Get hourly predictions for the day ahead.
+*   **Health Advisories:** Real-time health tips based on current AQI levels.
+*   **Custom Predictor:** Enter your own pollutant values to see how the model reacts!
+*   **Feature Importance:** Learn which pollutants (like PM2.5 or NO2) are driving the AQI at each station.
 
-## API Endpoints
-
-| Method | URL | Returns |
-|--------|-----|---------|
-| GET | /api/stations | Station list |
-| GET | /api/current | Latest AQI per station |
-| GET | /api/forecast/<station> | 24-h XGBoost forecast |
-| GET | /api/history/<station> | 7-day hourly AQI |
-| GET | /api/aqi_trend | 30-day city trend |
-| GET | /api/pollutants/<station> | Pollutant breakdown |
-| GET | /api/health_advisory | Group-specific advice |
-| GET | /api/model_metrics | Train/val/test metrics |
-| GET | /api/feature_importance/<station> | XGBoost feature importance |
-| POST | /api/predict | Custom AQI prediction |
-
-## Dashboard Features
-
-- AQI arc gauge with colour coding
-- Leaflet map with live AQI-coloured station markers
-- Pollutant bars vs NAAQS limits
-- 7-day history + 24-h XGBoost forecast
-- 30-day city trend
-- XGBoost feature importance bar chart (per station)
-- Group health advisories
-- Custom AQI predictor with 24-h output chips
-- 5-minute auto-refresh
-
-## Why XGBoost Wins
-
-| Model | Test R² | Notes |
-|-------|---------|-------|
-| XGBoost | 0.88–0.91 | Best — gradient boosted trees, no gradient explosion |
-| LSTM (fixed) | 0.90–0.93 | Good after hyperparameter fixes |
-| GRU | 0.91–0.94 | Slightly better than LSTM |
-| SARIMA | 0.70–0.78 | Statistical baseline |
