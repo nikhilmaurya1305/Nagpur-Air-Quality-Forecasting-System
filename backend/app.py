@@ -37,8 +37,13 @@ DATA_PATH   = os.path.join(BASE_DIR, "../data/nagpur_final_preprocessed.csv")
 MODEL_DIR   = os.path.join(BASE_DIR, "../ml/models")
 CONFIG_PATH = os.path.join(MODEL_DIR, "model_config.json")
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../frontend", static_url_path="")
 CORS(app)
+
+# ── SERVE FRONTEND ────────────────────────────────────────────────────────────
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
 
 # ── LOAD CONFIG ───────────────────────────────────────────────────────────────
 print("Loading model config …")
@@ -70,9 +75,9 @@ for station in STATIONS:
         MODELS[station]       = joblib.load(mpath)
         FEAT_SCALERS[station] = joblib.load(fpath)
         TGT_SCALERS[station]  = joblib.load(tpath)
-        print(f"  ✔ {station}")
+        print(f"  OK {station}")
     else:
-        print(f"  ✘ {station} — run train_xgboost.py first")
+        print(f"  FAIL {station} — run train_xgboost.py first")
 
 # ── AQI HELPERS ───────────────────────────────────────────────────────────────
 AQI_BANDS = [
